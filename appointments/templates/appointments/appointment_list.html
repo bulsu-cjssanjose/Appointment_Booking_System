@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment List | Booking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-600 p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-white text-xl font-bold">📅 Appointment System</h1>
+            <a href="{% url 'appointment_create' %}" class="bg-white text-blue-600 px-4 py-2 rounded shadow hover:bg-gray-100 transition font-semibold">
+                + New Appointment
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 px-4">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            
+            <!-- Header with Search and Filters -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            {% if show_archived %}Archived Appointments{% else %}Upcoming Appointments{% endif %}
+                        </h2>
+                        <p class="text-gray-500 text-sm mt-1">
+                            {% if show_archived %}History of past and cancelled appointments.{% else %}Manage your schedule efficiently.{% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Search and Filter Form -->
+                    <form method="get" class="flex flex-wrap items-center gap-3">
+                        <!-- Search Input -->
+                        <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search client name..." 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64">
+                        
+                        <!-- Status Filter -->
+                        <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="all" {% if not status_filter or status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+                            <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+
+                        <!-- Show Archived Checkbox -->
+                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="archived" value="true" {% if show_archived %}checked{% endif %} class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span>Show Archived</span>
+                        </label>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition">
+                            Filter
+                        </button>
+                        
+                        <!-- Clear Button -->
+                        <a href="{% url 'appointment_list' %}" class="text-sm text-gray-500 hover:text-gray-800 underline">Clear</a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Service</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for appt in appointments %}
+                        <tr class="hover:bg-gray-50 transition {% if appt.is_archived %}bg-gray-50 opacity-75{% endif %}">
+                            <!-- Client Name (Clickable) -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'appointment_detail' appt.pk %}" class="text-blue-600 hover:underline">
+                                    {{ appt.client.full_name }}
+                                </a>
+                            </td>
+                            
+                            <!-- Service -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ appt.service.name }}</td>
+                            
+                            <!-- Date & Time -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ appt.scheduled_at }}</td>
+                            
+                            <!-- Status with Dynamic Colors -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if appt.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                    {% elif appt.status == 'completed' %}bg-green-100 text-green-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ appt.get_status_display }}
+                                </span>
+                                {% if appt.is_archived %}
+                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-700">
+                                        Archived
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right space-x-3">
+                                {% if not appt.is_archived %}
+                                    <a href="{% url 'appointment_update' appt.pk %}" class="text-yellow-600 hover:text-yellow-800 font-medium transition">Edit</a>
+                                    <a href="{% url 'appointment_delete' appt.pk %}" class="text-red-600 hover:text-red-800 font-medium transition">Archive</a>
+                                {% else %}
+                                    <span class="text-gray-400 italic">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">
+                                {% if show_archived %}
+                                    No archived appointments found.
+                                {% else %}
+                                    No appointments found. Click "+ New Appointment" to create one.
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
