@@ -1,18 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans antialiased flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md w-full">
-        <h2 class="text-xl font-bold text-red-600 mb-4">Archive Appointment?</h2>
-        <p class="text-gray-700 mb-6">Are you sure you want to archive the appointment for <strong>{{ appointment.client.full_name }}</strong>? The record will be hidden but not deleted.</p>
+{% extends 'appointments/base.html' %}
+
+{% block title %}Archive Appointment | Appointment System{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+            <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </div>
         
-        <form method="post" class="flex justify-center space-x-4">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Archive Appointment?</h2>
+        <p class="text-gray-500 text-sm mb-8 leading-relaxed">
+            Are you sure you want to archive the appointment for <strong class="text-gray-900">{{ appointment.client.full_name }}</strong>? <br><br>
+            The record will be hidden from the active list but will <strong>not</strong> be permanently deleted from the database.
+        </p>
+        
+        <form method="post" class="flex justify-center space-x-3">
             {% csrf_token %}
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700">Yes, Archive</button>
-            <a href="{% url 'appointment_list' %}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-300">Cancel</a>
+            <a href="{% url 'appointment_list' %}" class="bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg shadow-sm hover:bg-gray-50 transition font-medium text-sm">
+                Cancel
+            </a>
+            <button type="submit" class="bg-red-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-red-700 transition font-medium text-sm">
+                Yes, Archive
+            </button>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,59 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Appointment | Booking System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans antialiased">
+{% extends 'appointments/base.html' %}
 
-    <!-- Navigation Bar -->
-    <nav class="bg-blue-600 p-4 shadow-md">
-        <div class="container mx-auto">
-            <h1 class="text-white text-xl font-bold">📅 Appointment System</h1>
+{% block title %}{% if is_update %}Edit{% else %}New{% endif %} Appointment | Appointment System{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <a href="{% url 'appointment_list' %}" class="text-sm text-gray-500 hover:text-gray-900 mb-4 inline-flex items-center gap-1 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Dashboard
+    </a>
+
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
+        <div class="mb-6 border-b border-gray-100 pb-5">
+            <h2 class="text-2xl font-bold text-gray-900">
+                {% if is_update %}Edit Appointment{% else %}New Appointment{% endif %}
+            </h2>
+            <p class="text-gray-500 text-sm mt-1">Fill out the details below to {% if is_update %}update the{% else %}create a new{% endif %} appointment.</p>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container mx-auto mt-10 px-4 max-w-2xl">
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Create New Appointment</h2>
+        
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
             
-            <form method="post" class="space-y-4">
-                {% csrf_token %}
-                
-                <!-- Custom rendering for each field to apply Tailwind classes -->
-                {% for field in form %}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-
-                <!-- Non-field errors (like the double booking error) -->
-                {% if form.non_field_errors %}
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        {% for error in form.non_field_errors %}
-                            <span class="block sm:inline">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <div class="flex items-center justify-between pt-4">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold">
-                        Save Appointment
-                    </button>
-                    <a href="{% url 'appointment_list' %}" class="text-gray-500 hover:text-gray-800 transition text-sm font-medium">
-                        Cancel and Go Back
-                    </a>
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            {{ field.errors.0 }}
+                        </p>
+                    {% endif %}
                 </div>
-            </form>
-        </div>
-    </div>
+            {% endfor %}
 
-</body>
-</html>
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+                    <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="font-semibold text-sm">Validation Error</span>
+                    </div>
+                    <ul class="list-disc list-inside mt-1 text-sm ml-7">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-gray-100">
+                <a href="{% url 'appointment_list' %}" class="text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-5 py-2 rounded-lg transition font-medium text-sm">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition font-medium text-sm">
+                    {% if is_update %}Update Appointment{% else %}Save Appointment{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
