@@ -7,4 +7,5 @@ urlpatterns = [
     path('<int:pk>/', views.appointment_detail, name='appointment_detail'),
     path('<int:pk>/edit/', views.appointment_update, name='appointment_update'),
     path('<int:pk>/delete/', views.appointment_delete, name='appointment_delete'),
+    path('<int:pk>/restore/', views.appointment_restore, name='appointment_restore'),
 ]

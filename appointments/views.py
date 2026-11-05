@@ -6,44 +6,42 @@ from .models import Appointment
 from .forms import AppointmentForm
 
 def appointment_list(request):
-    #Base Query (Select related para mabilis i-render)
+    # Base Query
     queryset = Appointment.objects.select_related('client', 'service').all()
 
-    #Kunin ang mga filter mula sa URL
+    # Kunin ang mga filter mula sa URL
     search_query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', 'all')
     show_archived = request.GET.get('archived') == 'true'
 
-    #Filter Logic
+    # Filter Logic
     if show_archived:
-        # Kung naka-check ang Archived, titingnan lang natin yung mga archived
         queryset = queryset.filter(is_archived=True)
     else:
-        # Default: Ipakita lang yung mga active (hindi archived)
         queryset = queryset.filter(is_archived=False)
 
-    #Search by Name or Service
+    # Search by Name or Service
     if search_query:
         queryset = queryset.filter(
             Q(client__full_name__icontains=search_query) | 
             Q(service__name__icontains=search_query)
         )
     
-    #Status Filter
+    # Status Filter
     if status_filter and status_filter != 'all':
         queryset = queryset.filter(status=status_filter)
 
-    #Ordering (chronological para sa schedule)
+    # Ordering
     queryset = queryset.order_by('scheduled_at')
 
-    #Stats Cards (Hiwalay na bilang para hindi maapektuhan ng search)
+    # Stats Cards
     total_count = Appointment.objects.filter(is_archived=False).count()
     active_count = Appointment.objects.filter(is_archived=False, status='scheduled').count()
 
     context = {
         'appointments': queryset,
-        'total_appointments': total_count,   # Para sa stats card
-        'active_appointments': active_count, # Para sa stats card
+        'total_appointments': total_count,
+        'active_appointments': active_count,
         'search_query': search_query,
         'status_filter': status_filter,
         'show_archived': show_archived,
@@ -83,7 +81,7 @@ def appointment_update(request, pk):
     return render(request, 'appointments/appointment_form.html', {
         'form': form, 
         'is_update': True, 
-        'appointment': appointment # Ipinasa natin para magamit sa title ng form
+        'appointment': appointment
     })
 
 
@@ -98,3 +96,16 @@ def appointment_delete(request, pk):
         return redirect('appointment_list')
         
     return render(request, 'appointments/appointment_confirm_delete.html', {'appointment': appointment})
+
+
+# ITO YUNG BAGONG FUNCTION - Tama na ang indentation
+def appointment_restore(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        appointment.is_archived = False
+        appointment.archived_at = None
+        appointment.save()
+        messages.success(request, "Appointment restored successfully.")
+        return redirect('appointment_list')
+    
+    return render(request, 'appointments/appointment_confirm_restore.html', {'appointment': appointment})
