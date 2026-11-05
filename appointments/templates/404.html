@@ -1,0 +1,20 @@
+{% extends 'appointments/base.html' %}
+
+{% block title %}Page Not Found | Appointment System{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+    <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </div>
+    <h1 class="text-5xl font-extrabold text-gray-900 mb-2">404</h1>
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Page Not Found</h2>
+    <p class="text-gray-500 max-w-md mx-auto mb-8">
+        Oops! The page you are looking for doesn't exist or has been moved.
+    </p>
+    <a href="{% url 'appointment_list' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-sm hover:bg-blue-700 transition font-medium flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Return to Dashboard
+    </a>
+</div>
+{% endblock %}
